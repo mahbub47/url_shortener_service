@@ -2,6 +2,7 @@ import { InferSchemaType, model, Schema } from "mongoose";
 
 const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
+  totalShortenedUrls: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 
