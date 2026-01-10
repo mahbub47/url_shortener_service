@@ -4,6 +4,10 @@ import Otp from "../models/otpModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 import { transporter } from "../utils/transport.js";
+import User from "../models/userModel.js";
+import jwt, { SignOptions } from "jsonwebtoken";
+import { AuthenticatedRequest } from "../types/authenticatedRequest.js";
+import axios from "axios";
 
 
 export const sendOtpController: RequestHandler = async (req, res) => {
@@ -76,8 +80,80 @@ export const verifyOtpController: RequestHandler = async (req, res) => {
       await Otp.deleteMany({ email });
       return res.status(400).json({ message: "OTP has expired", success: false });
     }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      await User.create({ email });
+    }
+    await Otp.deleteMany({ email });
+    const jwtSecret = process.env.JWT_SECRET || "secret1234";
+    const jwtExpiry = process.env.JWT_EXPIRY || "1d";
+
+    const token = jwt.sign({ email }, jwtSecret as string, { expiresIn: jwtExpiry } as SignOptions);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     res.status(200).json({ message: "OTP verified successfully", success: true });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }
 }
+
+export const checkAuthController: RequestHandler = async (req, res) => {
+  try {
+    const user = (req as AuthenticatedRequest).user;
+    if (user) {
+      return res.status(200).json({ isAuthenticated: true, user: user });
+    } else {
+      return res.status(200).json({ isAuthenticated: false });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+}
+
+export const googleAuthController: RequestHandler = async (req, res) => {
+  try {
+    const { access_token } = req.body;
+    if (!access_token) {
+      return res.status(400).json({ message: "Access token is required" });
+    }
+
+    const response = await axios.get("https://www.googleapis.com/oauth2/v3/tokeninfo", {
+      params: {
+        access_token: access_token,
+      },
+    });
+
+    const email = response.data.email;
+    if (!email) {
+      return res.status(400).json({ message: "Unable to retrieve email from Google" });
+    }
+
+    const recordedUser = await User.findOne({ email });
+    if (!recordedUser) {
+      await User.create({ email });
+    }
+
+    const jwtSecret = process.env.JWT_SECRET || "secret1234";
+    const jwtExpiry = process.env.JWT_EXPIRY || "1d";
+
+    const token = jwt.sign({ email }, jwtSecret as string, { expiresIn: jwtExpiry } as SignOptions);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({ message: "Google authentication successful", success: true, user: { email } });
+  } catch (error) {
+    
+  }
+};

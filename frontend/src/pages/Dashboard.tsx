@@ -1,8 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer"
 import Navbar from "../components/Navbar"
+import { useAuth } from "../contexts/authContext";
+import { useEffect } from "react";
 
 
 function Dashboard() {
+  const {isAuthenticated} = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(!isAuthenticated) navigate("/");
+  }, [isAuthenticated, navigate]);
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />

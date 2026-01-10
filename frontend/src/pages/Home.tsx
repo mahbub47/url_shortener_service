@@ -1,7 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../contexts/authContext";
+import { useEffect } from "react";
 
 function Home() {
+  const navigate = useNavigate();
+  const {isAuthenticated} = useAuth();
+
+  useEffect(() => {
+    if(isAuthenticated) navigate("/dashboard");
+  }, [isAuthenticated, navigate]);
+    
   return (
     <div className="min-h-screen min-w-screen">
       {/* Header/Navbar */}

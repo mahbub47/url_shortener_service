@@ -1,14 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../utils/app";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../contexts/authContext";
 
 function Signup() {
+  const {isAuthenticated, setIsAuthenticated, setUser} = useAuth();
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"email" | "otp">("email");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if(isAuthenticated) navigate("/dashboard");
+  }, [isAuthenticated, navigate]);
 
   const handleSendOtp = async () => {
     if (!email) return;
@@ -21,7 +28,9 @@ function Signup() {
   };
 
   const handleVerifyOtp = async () => {
-    if (!otp) return;
+
+    try {
+      if (!otp) return;
     setLoading(true);
 
     const res = await api.post("/api/auth/verify-otp", { email, otp });
@@ -29,18 +38,42 @@ function Signup() {
     if (res.data.success) {
       toast.success(res.data.message);
       setLoading(false);
+      setUser(res.data.user);
+      setIsAuthenticated(true);
       navigate("/dashboard");
     }
     else {
       toast.error(res.data.message);
       setLoading(false);
     }
+    } catch (error) {
+      console.log("ERROR", error);
+    }
+    
   };
 
-  const handleGoogleSignUp = async () => {
-    const res = await api.get("");
-    toast.success(res.data.message);
-  };
+  const handleGoogleSignUp = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const res = await api.post("/api/auth/google", {
+          access_token: tokenResponse.access_token,
+        });
+        if (res.data.success) {
+          toast.success(res.data.message);
+
+          navigate("/dashboard");
+          return;
+        }
+      } catch (error) {
+        console.error("Google sign-up error:", error);
+        toast.error("Google sign-up failed. Please try again.");
+      }
+    },
+    onError: () => {
+      toast.error("Google sign-up was cancelled or failed. Please try again.");
+    },
+    flow: "implicit",
+  });
   return (
     <div className="min-h-screen flex items-center justify-center bg-indigo-600 py-12 px-4 sm:px-6 lg:px-8">
       <div className="rounded-3xl bg-gray-50 p-20 space-y-8">
@@ -110,7 +143,7 @@ function Signup() {
 
         {/* Google OAuth Button */}
         <button
-          onClick={handleGoogleSignUp}
+          onClick={() => handleGoogleSignUp()}
           className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
