@@ -58,4 +58,46 @@ go to the `\frontend` folder using `cd frontend` from the root directory of the 
 
 and then run `npm run dev`
 
-## CONGRATULATIONS! You have run the project successfully
+### CONGRATULATIONS! You have run the project successfully
+
+## 2.Project Structure
+
+```project-structure
+url_shortener_service/
+│
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middlewares/
+│   │   ├── routes/
+│   │   ├── types/
+|   |   ├── utils/
+|   |   ├── server.ts
+│   │   └── app.ts
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── .env
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── contexts/
+│   │   ├── pages/
+│   │   ├── utils/
+│   │   ├── App.css
+│   │   ├── App.tsx
+│   │   ├── main.css
+│   │   └── main.tsx
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── style.css
+│   ├── tsconfig.json
+│   ├── vite.config.json
+│   └── package.json
+│
+└── README.md
+```
+
