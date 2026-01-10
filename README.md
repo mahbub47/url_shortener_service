@@ -102,3 +102,19 @@ url_shortener_service/
 │
 └── README.md
 ```
+
+## 3.API Documentation
+
+### Email-OTP Authentication
+
+#### User Request for Authentication using email
+
+``POST:{Base_URL}\api\auth\otp``
+
+an One-Time-Password generated and send to the user through email using nodemailer
+
+#### User sends the OTP to the backend for authentication
+
+``POST:{Base_URL}\api\auth\verify-otp``
+
+
