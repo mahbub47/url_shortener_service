@@ -21,15 +21,17 @@ Make sure you have the following installed:
 ##### 3. npm
 
 #### step-1 (Project Setup):
-`git git clone https://github.com/mahbub47/url_shortener_service.git`
+```powershell
+git clone https://github.com/mahbub47/url_shortener_service.git
 
-`cd url_shortener_service/backend`
+cd url_shortener_service/backend
 
-`npm install`
+npm install
 
-`cd url_shortener_service/frontend`
+cd url_shortener_service/frontend
 
-`npm install`
+npm install
+```
 
 #### step-2 (Environment variables):
 
@@ -100,4 +102,3 @@ url_shortener_service/
 │
 └── README.md
 ```
-

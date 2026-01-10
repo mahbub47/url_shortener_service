@@ -1,9 +1,22 @@
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
+import api from "../utils/app";
+import { toast } from "react-toastify";
 
 function Navbar() {
-  const { user, isAuthenticated } = useAuth();
-  const handleLogout = () => {
-    alert("Logout functionality to be implemented");
+  const navigate = useNavigate();
+  const { user, isAuthenticated, setUser, setIsAuthenticated, setIsLoading} = useAuth();
+  const handleLogout = async () => {
+    setIsLoading(true);
+    const res = await api.post("/api/auth/logout");
+    if(res.data.success){
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      toast.success("Logged out successfully");
+      navigate("/");
+    }
+    setIsLoading(false);
   };
   return (
     <header className="flex justify-between items-center p-6 bg-white shadow-sm">

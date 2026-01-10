@@ -60,9 +60,9 @@ function Signup() {
         });
         if (res.data.success) {
           toast.success(res.data.message);
-
-          navigate("/dashboard");
-          return;
+          setUser(res.data.user);
+          setIsAuthenticated(true);
+          navigate("/signup");
         }
       } catch (error) {
         console.error("Google sign-up error:", error);
